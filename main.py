@@ -9,6 +9,10 @@ canvas.pack()
 fm = FontManager("BM437.png", 64, 4, 8, 16)
 globalScale = 5.0
 
+# [TODO] Create frames instead of drawing directly onto the canvas so it can be manipulated better later on
+def generateFrame(canvas, fm, x, y, iconIndex, color, tags):
+    pass
+
 class Entity:
     def __init__(self, canvas, fm, x, y, iconIndex, color = "limegreen", tags = ""):
         self.canvas = canvas
@@ -59,8 +63,19 @@ class Player(Entity):
 
         self.canvas.update()
 
-player = Player(canvas = canvas, fm = fm, x = 0, y = 0)
-b = Entity(canvas, fm, 1, 1, 2, color = "blue", tags = "enemy")
-canvas.scale("all", 0, 0, globalScale, globalScale)    # [TODO] There has got to be a better way to do this...
+class Water(Entity):
+    # Maybe transfer between 177 and 178?
+    def __init__(self, canvas, fm, x, y):
+        super().__init__(canvas = canvas, fm = fm, x = x, y = y, iconIndex = 177, color = "lightblue", tags = "water")
 
+        # [TODO] Figure out how to properly switch between the two animations
+        #a = canvas.create_rectangle(canvas.canvasx(10), canvas.canvasy(10), canvas.canvasx(20), canvas.canvasy(20), fill = "blue", width = 0, tags = self.tags)
+        #b = canvas.create_rectangle(canvas.canvasx(10), canvas.canvasy(10), canvas.canvasx(20), canvas.canvasy(20), fill = "red", width = 0, tags = self.tags)
+        #canvas.itemconfigure(a, state = "normal")
+        #canvas.itemconfigure(b, state = "hidden")
+
+player = Player(canvas = canvas, fm = fm, x = 0, y = 0)
+water = Water(canvas = canvas, fm = fm, x = 3, y = 2)
+
+canvas.scale("all", 0, 0, globalScale, globalScale)    # [TODO] There has got to be a better way to do this...
 top.mainloop()
