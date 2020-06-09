@@ -4,50 +4,9 @@ from FontManager import FontManager
 
 top = Tk()
 canvas = Canvas(top, bg = "black", width = 10 * 80, height = 20 * 16, borderwidth = 0, highlightthickness = 0)
-#canvas.scale("all", 0, 0, 4, 4)
 canvas.pack()
 
-"""
-def renderFont(fontManager, index, x, y, color = "limegreen", tags = ""):
-    x *= fontManager.fontW * scale
-    y *= fontManager.fontH * scale
-
-    pixels = fontManager.patterns[index]
-    for Y in range(len(pixels)):
-        for X in range(len(pixels[Y])):
-            pixel = pixels[Y][X]
-            if pixel == 1:
-                x1 = x + (X * scale)
-                y1 = y + (Y * scale)
-                x2 = x1 + scale
-                y2 = y1 + scale
-                canvas.create_rectangle(canvas.canvasx(x1), canvas.canvasy(y1), canvas.canvasx(x2), canvas.canvasy(y2), fill = color, width = 0, tags = tags)
-"""
-
 fm = FontManager("BM437.png", 64, 4, 8, 16)
-
-#renderFont(fm, 1, 10, 1, "blue", tags = "player")
-
-"""
-def onKeyPressed(e):
-    key = e.keysym
-
-    deltaX = 8 * scale
-    deltaY = 16 * scale
-
-    if key == "w": canvas.move("player", 0, -deltaY)
-    if key == "s": canvas.move("player", 0, deltaY)
-    if key == "a": canvas.move("player", -deltaX, 0)
-    if key == "d": canvas.move("player", deltaX, 0)
-
-    canvas.update()
-
-canvas.bind_all("<Key>", onKeyPressed)
-
-def tick(): top.after(16, tick)
-top.after(16, tick)
-"""
-
 globalScale = 5.0
 
 class Entity:
