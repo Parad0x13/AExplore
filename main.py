@@ -2,8 +2,8 @@
 from tkinter import *
 from FontManager import FontManager
 
-top = Tk()
-canvas = Canvas(top, bg = "black", width = 10 * 80, height = 20 * 16, borderwidth = 0, highlightthickness = 0)
+root = Tk()
+canvas = Canvas(root, bg = "black", width = 10 * 80, height = 20 * 16, borderwidth = 0, highlightthickness = 0)
 canvas.pack()
 
 fm = FontManager("BM437.png", 64, 4, 8, 16)
@@ -13,14 +13,15 @@ globalScale = 5.0
 def generateFrame(canvas, fm, x, y, iconIndex, color, tags):
     pass
 
-class Entity:
-    def __init__(self, canvas, fm, x, y, iconIndex, color = "limegreen", tags = ""):
-        self.canvas = canvas
+class Sprite:
+    def __init__(self, x, y, iconIndex, color = "limegreen", tags = "", state = "normal"):
         self.x = x
         self.y = y
         self.color = color
         self.tags = tags
+        self.state = state
 
+        self.IDs = []
         pixels = fm.patterns[iconIndex]
         for Y in range(len(pixels)):
             for X in range(len(pixels[Y])):
@@ -30,9 +31,18 @@ class Entity:
                     y1 = self.y * 16 + Y
                     x2 = x1 + 1
                     y2 = y1 + 1
-                    canvas.create_rectangle(canvas.canvasx(x1), canvas.canvasy(y1), canvas.canvasx(x2), canvas.canvasy(y2), fill = self.color, width = 0, tags = self.tags)
+                    newID = canvas.create_rectangle(canvas.canvasx(x1), canvas.canvasy(y1), canvas.canvasx(x2), canvas.canvasy(y2), fill = self.color, width = 0, tags = self.tags, state = self.state)
+                    self.IDs.append(newID)
 
-class Player(Entity):
+    def toggleHidden(self):
+        if self.state == "normal": self.state = "hidden"
+        else: self.state = "normal"
+
+        for ID in self.IDs:
+            canvas.itemconfigure(ID, state = self.state)
+
+"""
+class Player(Sprite):
     def __init__(self, canvas, fm, x, y):
         super().__init__(canvas = canvas, fm = fm, x = x, y = y, iconIndex = 1, color = "limegreen", tags = "player")
         self.canvas.bind_all("<Key>", self.keyPressed)
@@ -62,20 +72,70 @@ class Player(Entity):
             self.canvas.move(self.tags, deltaX, 0)
 
         self.canvas.update()
+"""
+
+class Entity:
+    def __init__(self, sprites):
+        self.sprites = sprites
+        self.currentTick = 0
+
+    def tick(self, delta):
+        self.currentTick += delta
+
+class Player(Entity):
+    def __init__(self, x, y):
+        a = Sprite(x, y, 1, color = "limegreen", tags = "player", state = "normal")
+        b = Sprite(x, -1.0 / 16.0, 1, color = "limegreen", tags = "player", state = "hidden")
+        super().__init__([a, b])
+
+    def tick(self, delta):
+        super().tick(delta)
+
+        if self.currentTick > 1000:
+            self.currentTick = 0
+            for sprite in self.sprites:
+                sprite.toggleHidden()
 
 class Water(Entity):
-    # Maybe transfer between 177 and 178?
-    def __init__(self, canvas, fm, x, y):
-        super().__init__(canvas = canvas, fm = fm, x = x, y = y, iconIndex = 177, color = "lightblue", tags = "water")
+    def __init__(self, x, y):
+        a = Sprite(x, y, 177, color = "lightblue", tags = "water", state = "normal")
+        b = Sprite(x, y, 178, color = "lightblue", tags = "water", state = "hidden")
+        super().__init__([a, b])
 
-        # [TODO] Figure out how to properly switch between the two animations
-        #a = canvas.create_rectangle(canvas.canvasx(10), canvas.canvasy(10), canvas.canvasx(20), canvas.canvasy(20), fill = "blue", width = 0, tags = self.tags)
-        #b = canvas.create_rectangle(canvas.canvasx(10), canvas.canvasy(10), canvas.canvasx(20), canvas.canvasy(20), fill = "red", width = 0, tags = self.tags)
-        #canvas.itemconfigure(a, state = "normal")
-        #canvas.itemconfigure(b, state = "hidden")
+    def tick(self, delta):
+        super().tick(delta)
 
-player = Player(canvas = canvas, fm = fm, x = 0, y = 0)
-water = Water(canvas = canvas, fm = fm, x = 3, y = 2)
+        if self.currentTick > 500:
+            self.currentTick = 0
+            for sprite in self.sprites:
+                sprite.toggleHidden()
+
+class Fire(Entity):
+    def __init__(self, x, y):
+        a = Sprite(x, y, 189, color = "red", tags = "fire", state = "normal")
+        b = Sprite(x, y, 190, color = "red", tags = "fire", state = "hidden")
+        super().__init__([a, b])
+
+    def tick(self, delta):
+        super().tick(delta)
+
+        if self.currentTick > 200:
+            self.currentTick = 0
+            for sprite in self.sprites:
+                sprite.toggleHidden()
+
+player = Player(x = 0, y = 0)
+water = Water(x = 3, y = 2)
+fire = Fire(x = 1, y = 1)
+entities = [player, water, fire]
+
+tickPeriod = int((1.0 / 30.0) * 1000)
+def tick():
+    for entity in entities:
+        entity.tick(tickPeriod)
+
+    root.after(tickPeriod, tick)
+root.after(0, tick)
 
 canvas.scale("all", 0, 0, globalScale, globalScale)    # [TODO] There has got to be a better way to do this...
-top.mainloop()
+root.mainloop()
