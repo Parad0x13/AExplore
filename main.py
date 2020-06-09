@@ -46,4 +46,9 @@ def tick():
     top.after(16, tick)
 
 top.after(16, tick)
+
+class Entity:
+    def __init__(self, canvas):
+        self.canvas = canvas
+
 top.mainloop()
