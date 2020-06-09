@@ -9,10 +9,6 @@ canvas.pack()
 fm = FontManager("BM437.png", 64, 4, 8, 16)
 globalScale = 5.0
 
-# [TODO] Create frames instead of drawing directly onto the canvas so it can be manipulated better later on
-def generateFrame(canvas, fm, x, y, iconIndex, color, tags):
-    pass
-
 class Sprite:
     def __init__(self, x, y, iconIndex, color = "limegreen", tags = "", state = "normal"):
         self.x = x
